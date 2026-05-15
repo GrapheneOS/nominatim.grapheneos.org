@@ -19,5 +19,6 @@ rsync -pcv --chmod=644 --fsync --preallocate nginx/{nginx.conf,mime.types} $remo
 ssh $remote systemctl reload nginx
 
 rsync -rpcv --delete --chmod=D755,F644 --fsync --preallocate systemd/system/nominatim.service.d $remote:/etc/systemd/system/
+ssh $remote systemctl daemon-reload
 
 rsync -pcv --chmod=600 --chown postgres:postgres --fsync --preallocate postgres/data/{pg_hba,pg_ident,postgresql}.conf $remote:/var/lib/postgres/data/
