@@ -1,17 +1,22 @@
 [Unit]
-After=postgresql.service
+Description=Nominatim running as a gunicorn application
+After=network.target postgresql.service
 Requires=postgresql.service
+PartOf=nominatim.target
 
 [Service]
 CapabilityBoundingSet=
-ExecStart=
-ExecStart=/usr/bin/gunicorn --no-control-socket -b unix:/run/nominatim.sock -w 16 -k asgi --keep-alive 65 nominatim_api.server.falcon.server:run_wsgi()
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStart=/usr/bin/gunicorn --no-control-socket -b unix:/run/nominatim/%i.sock -k asgi --keep-alive 65 nominatim_api.server.falcon.server:run_wsgi()
+Group=http
 IPAddressDeny=any
+KillMode=mixed
 LockPersonality=yes
 NoNewPrivileges=yes
 PrivateDevices=yes
 PrivateIPC=yes
 PrivateNetwork=yes
+PrivateTmp=true
 ProcSubset=pid
 ProtectClock=yes
 ProtectControlGroups=yes
@@ -31,7 +36,16 @@ RestrictAddressFamilies=AF_UNIX
 RestrictNamespaces=yes
 RestrictRealtime=yes
 RestrictSUIDSGID=yes
+RuntimeDirectory=nominatim
+RuntimeDirectoryMode=750
+RuntimeDirectoryPreserve=yes
 SystemCallArchitectures=native
 SystemCallFilter=@system-service
-SystemCallFilter=~@obsolete @privileged @resources
+SystemCallFilter=~@obsolete @resources
+TimeoutStopSec=5
 UMask=0077
+User=http
+WorkingDirectory=/var/lib/nominatim
+
+[Install]
+WantedBy=nominatim.target
