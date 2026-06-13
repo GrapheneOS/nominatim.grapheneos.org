@@ -6,6 +6,9 @@ PartOf=nominatim.target
 
 [Service]
 CapabilityBoundingSet=
+Environment=LD_PRELOAD=/usr/lib/libjemalloc.so
+Environment=MALLOC_CONF=narenas:4
+Environment=PYTHONMALLOC=malloc
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStart=/usr/bin/gunicorn --no-control-socket -b unix:/run/nominatim/%i.sock -k asgi --keep-alive 65 nominatim_api.server.falcon.server:run_wsgi()
 Group=http
